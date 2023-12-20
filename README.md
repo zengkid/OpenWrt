@@ -1,3 +1,43 @@
+## 启动首次编译
+执行下述命令，预下载待编译组件源码。
+```
+cd lede
+./scripts/feeds update -a
+./scripts/feeds install -a
+ make -j8 download V=s
+ make -j1 V=s
+```
+执行下述命令，启动首次编译：
+```make -j1 V=s```
+[超级超级注意] 首次编译，千万使用-j1, 指的是单线程编译，不容易出现莫名其妙的编译错误。
+首次编译可能需要2～3小时，耐性等待即可。
+
+
+## 实施二次编译
+当修改了target system目标系统时，如从x86修改为rockchip, 需要进行二次编译。
+执行顺序如下：
+```
+cd lede
+git pull
+./scripts/feeds update -a && ./scripts/feeds install -a
+make defconfig
+make -j8 download
+make -j$(($(nproc) + 1)) V=s
+```
+
+
+## 将编译环境恢复初始化
+如果一直出现一些莫名其妙的编译错误，无法解决，可重新初始化一次编译环境。可有效解决一直出现莫名其妙的编译错误：
+```
+make clean && ./scripts/feeds clean
+rm -rf ./tmp && rm -rf .config
+./scripts/feeds update -a && ./scripts/feeds install -a
+make defconfig
+make -j8 download
+make -j$(($(nproc) + 1)) V=s
+```
+
+
 <div align="center">
 <img width="768" src="https://cdn.jsdelivr.net/gh/haiibo/OpenWrt/images/openwrt.png"/>
 <h1>OpenWrt — 多设备固件云编译</h1>
